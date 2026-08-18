@@ -18,10 +18,9 @@ const modePrompts: Record<EnhancementMode, string> = {
 
 export async function POST(request: Request) {
   try {
-    const { prompt, mode = 'detailed', model = 'deepseek/deepseek-chat' } = (await request.json()) as {
+    const { prompt, mode = 'detailed' } = (await request.json()) as {
       prompt: string
       mode: EnhancementMode
-      model: string
     }
 
     if (!prompt || prompt.trim().length === 0) {
@@ -53,13 +52,19 @@ Guidelines:
 
 Return ONLY the enhanced prompt, nothing else.`
 
-    const { text } = await generateText({
-      model: openrouter(model),
+    const response = await generateText({
+      model: openrouter('openrouter/auto-beta'),
       system: systemPrompt,
       prompt: `Original idea/prompt:\n\n${prompt}`,
     })
 
-    return Response.json({ enhanced: text })
+    // Extract model name from response headers if available
+    let usedModel = 'AutoRouter (Intelligent Selection)'
+
+    return Response.json({
+      enhanced: response.text,
+      usedModel,
+    })
   } catch (error) {
     console.error('Enhancement error:', error)
     return Response.json(

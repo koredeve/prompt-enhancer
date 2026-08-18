@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
-import { Copy, Sparkles, Loader2 } from 'lucide-react'
+import { Copy, Sparkles, Loader2, Zap } from 'lucide-react'
 
 type EnhancementMode = 'detailed' | 'concise' | 'creative' | 'technical' | 'structured'
 
@@ -12,21 +12,12 @@ interface EnhancedPrompt {
   original: string
   enhanced: string
   mode: EnhancementMode
-  model: string
+  usedModel: string
 }
-
-const MODELS = [
-  { id: 'openrouter/auto-beta', name: 'AutoRouter (Smart)' },
-  { id: 'deepseek/deepseek-chat', name: 'DeepSeek V3' },
-  { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B (Free)' },
-  { id: 'qwen/qwen3.7-max', name: 'Qwen 3.7 Max' },
-  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet' },
-]
 
 export default function Home() {
   const [input, setInput] = useState('')
   const [mode, setMode] = useState<EnhancementMode>('detailed')
-  const [selectedModel, setSelectedModel] = useState(MODELS[0].id)
   const [loading, setLoading] = useState(false)
   const [result, setResult] = useState<EnhancedPrompt | null>(null)
   const [error, setError] = useState('')
@@ -54,7 +45,7 @@ export default function Home() {
       const response = await fetch('/api/enhance', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ prompt: input, mode, model: selectedModel }),
+        body: JSON.stringify({ prompt: input, mode }),
       })
 
       if (!response.ok) {
@@ -66,12 +57,18 @@ export default function Home() {
         original: input,
         enhanced: data.enhanced,
         mode,
-        model: selectedModel,
+        usedModel: data.usedModel || 'AutoRouter',
       })
     } catch (err) {
       setError(err instanceof Error ? err.message : 'An error occurred')
     } finally {
       setLoading(false)
+    }
+  }
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if (e.key === 'Enter' && e.ctrlKey) {
+      enhance()
     }
   }
 
@@ -87,86 +84,102 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-zinc-950 p-6">
-      <div className="max-w-3xl mx-auto">
+    <div className="min-h-screen bg-gradient-to-b from-zinc-950 to-zinc-900 p-6">
+      <div className="max-w-2xl mx-auto">
         {/* Header */}
-        <div className="mb-12 text-center">
-          <div className="flex items-center justify-center gap-2 mb-2">
+        <div className="mb-8">
+          <div className="flex items-center gap-2 mb-1">
             <Sparkles className="w-5 h-5 text-blue-400" />
-            <h1 className="text-3xl font-bold text-white">PromptPolish</h1>
+            <h1 className="text-4xl font-bold text-white">PromptPolish</h1>
           </div>
-          <p className="text-sm text-zinc-500">Refine your prompts instantly</p>
+          <p className="text-sm text-zinc-400">Refine your prompts with AI</p>
         </div>
 
-        <div className="space-y-6">
-        {/* Input */}
-        <Card className="bg-zinc-900 border-zinc-800 p-6">
+        {/* Main Input */}
+        <Card className="bg-zinc-900/50 border border-zinc-800 p-6 mb-6">
           <Textarea
-            placeholder="Enter your prompt idea..."
+            placeholder="Paste your prompt idea here..."
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            className="min-h-32 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 mb-4"
+            onKeyDown={handleKeyDown}
+            className="min-h-40 bg-zinc-800/50 border-zinc-700 text-white placeholder:text-zinc-500 text-base resize-none mb-4"
           />
 
-          {/* Controls */}
-          <div className="flex gap-4 items-end">
-            <div className="flex-1">
-              <label className="text-xs text-zinc-400 mb-1 block">Style</label>
-              <select
-                value={mode}
-                onChange={(e) => setMode(e.target.value as EnhancementMode)}
-                className="w-full p-2 rounded bg-zinc-800 border border-zinc-700 text-white text-sm"
-              >
-                {modes.map((m) => (
-                  <option key={m.value} value={m.value}>
-                    {m.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div className="flex-1">
-              <label className="text-xs text-zinc-400 mb-1 block">Model</label>
-              <select
-                value={selectedModel}
-                onChange={(e) => setSelectedModel(e.target.value)}
-                className="w-full p-2 rounded bg-zinc-800 border border-zinc-700 text-white text-sm"
-              >
-                {MODELS.map((m) => (
-                  <option key={m.id} value={m.id}>
-                    {m.name}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* Controls Row */}
+          <div className="flex gap-3 items-center">
+            <select
+              value={mode}
+              onChange={(e) => setMode(e.target.value as EnhancementMode)}
+              className="flex-1 px-3 py-2 bg-zinc-800 border border-zinc-700 text-white text-sm rounded"
+            >
+              {modes.map((m) => (
+                <option key={m.value} value={m.value}>
+                  {m.label}
+                </option>
+              ))}
+            </select>
 
             <Button
               onClick={enhance}
               disabled={loading || !input.trim()}
-              className="bg-blue-600 hover:bg-blue-700 text-white"
+              size="lg"
+              className="bg-blue-600 hover:bg-blue-700 text-white gap-2"
             >
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+              {loading ? (
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Polishing...
+                </>
+              ) : (
+                <>
+                  <Zap className="w-4 h-4" />
+                  Polish
+                </>
+              )}
             </Button>
           </div>
 
-          {error && <div className="text-red-400 text-sm mt-3">{error}</div>}
+          {error && <div className="text-red-400 text-xs mt-3">{error}</div>}
+          {!result && <p className="text-xs text-zinc-500 mt-2">💡 Tip: Press Ctrl+Enter to submit</p>}
         </Card>
 
         {/* Output */}
         {result && (
-          <Card className="bg-zinc-900 border-zinc-800 p-6">
-            <div className="p-4 bg-zinc-800 rounded text-white text-sm leading-relaxed mb-4 whitespace-pre-wrap">
-              {result.enhanced}
+          <Card className="bg-gradient-to-br from-blue-950/30 to-zinc-900/30 border border-blue-800/30 p-6">
+            {/* Enhanced Prompt */}
+            <div className="mb-6">
+              <h3 className="text-sm font-semibold text-blue-300 mb-3 flex items-center gap-2">
+                <Sparkles className="w-4 h-4" />
+                Enhanced Prompt
+              </h3>
+              <div className="p-4 bg-zinc-800/50 rounded-lg text-white text-sm leading-relaxed whitespace-pre-wrap border border-zinc-700">
+                {result.enhanced}
+              </div>
             </div>
+
+            {/* Model Info */}
+            <div className="mb-4 p-3 bg-zinc-800/30 rounded border border-zinc-700">
+              <p className="text-xs text-zinc-400">
+                <span className="text-zinc-300 font-medium">Model:</span> {result.usedModel}
+              </p>
+            </div>
+
+            {/* Copy Button */}
             <Button
               onClick={copyToClipboard}
-              className="w-full bg-green-600 hover:bg-green-700 text-white"
+              className="w-full bg-green-600 hover:bg-green-700 text-white gap-2"
             >
-              {copied ? '✓ Copied!' : <><Copy className="w-4 h-4 mr-2" /> Copy</>}
+              {copied ? (
+                <>✓ Copied to clipboard</>
+              ) : (
+                <>
+                  <Copy className="w-4 h-4" />
+                  Copy Enhanced Prompt
+                </>
+              )}
             </Button>
           </Card>
         )}
-        </div>
       </div>
     </div>
   )
