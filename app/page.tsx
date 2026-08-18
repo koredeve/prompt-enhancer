@@ -146,35 +146,19 @@ export default function Home() {
         {/* Output */}
         {result && (
           <Card className="bg-gradient-to-br from-blue-950/30 to-zinc-900/30 border border-blue-800/30 p-6">
-            {/* Enhanced Prompt */}
-            <div className="mb-6">
-              <h3 className="text-sm font-semibold text-blue-300 mb-3 flex items-center gap-2">
-                <Sparkles className="w-4 h-4" />
-                Enhanced Prompt
-              </h3>
-              <div className="p-4 bg-zinc-800/50 rounded-lg text-white text-sm leading-relaxed whitespace-pre-wrap border border-zinc-700">
-                {result.enhanced}
-              </div>
+            <div className="p-4 bg-zinc-800/50 rounded-lg text-white text-sm leading-relaxed whitespace-pre-wrap border border-zinc-700 mb-4">
+              {result.enhanced}
             </div>
-
-            {/* Model Info */}
-            <div className="mb-4 p-3 bg-zinc-800/30 rounded border border-zinc-700">
-              <p className="text-xs text-zinc-400">
-                <span className="text-zinc-300 font-medium">Model:</span> {result.usedModel}
-              </p>
-            </div>
-
-            {/* Copy Button */}
             <Button
               onClick={copyToClipboard}
               className="w-full bg-green-600 hover:bg-green-700 text-white gap-2"
             >
               {copied ? (
-                <>✓ Copied to clipboard</>
+                <>✓ Copied</>
               ) : (
                 <>
                   <Copy className="w-4 h-4" />
-                  Copy Enhanced Prompt
+                  Copy
                 </>
               )}
             </Button>
