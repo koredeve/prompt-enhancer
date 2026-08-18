@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Card } from '@/components/ui/card'
-import { Copy, Zap, Loader2, Zap as Model } from 'lucide-react'
+import { Copy, Sparkles, Loader2 } from 'lucide-react'
 
 type EnhancementMode = 'detailed' | 'concise' | 'creative' | 'technical' | 'structured'
 
@@ -16,11 +16,11 @@ interface EnhancedPrompt {
 }
 
 const MODELS = [
-  { id: 'deepseek/deepseek-chat', name: 'DeepSeek V3', price: '$0.008/M', rating: '⭐⭐⭐⭐⭐' },
-  { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B', price: 'FREE', rating: '⭐⭐⭐⭐' },
-  { id: 'qwen/qwen3.7-max', name: 'Qwen 3.7 Max', price: 'Cheap', rating: '⭐⭐⭐⭐⭐' },
-  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet', price: '$3/M', rating: '⭐⭐⭐⭐⭐' },
-  { id: 'grok/grok-4.1-fast', name: 'Grok 4.1 Fast', price: 'Affordable', rating: '⭐⭐⭐⭐⭐' },
+  { id: 'openrouter/auto-beta', name: 'AutoRouter (Smart)' },
+  { id: 'deepseek/deepseek-chat', name: 'DeepSeek V3' },
+  { id: 'meta-llama/llama-3.3-70b-instruct:free', name: 'Llama 3.3 70B (Free)' },
+  { id: 'qwen/qwen3.7-max', name: 'Qwen 3.7 Max' },
+  { id: 'anthropic/claude-3.5-sonnet', name: 'Claude 3.5 Sonnet' },
 ]
 
 export default function Home() {
@@ -87,140 +87,85 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-zinc-950 via-zinc-900 to-zinc-950 p-6">
-      <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen bg-zinc-950 p-6">
+      <div className="max-w-3xl mx-auto">
         {/* Header */}
-        <div className="mb-8 text-center">
-          <div className="flex items-center justify-center gap-2 mb-3">
-            <Zap className="w-6 h-6 text-blue-500" />
-            <h1 className="text-4xl font-bold text-white">Prompt Enhancer</h1>
+        <div className="mb-12 text-center">
+          <div className="flex items-center justify-center gap-2 mb-2">
+            <Sparkles className="w-5 h-5 text-blue-400" />
+            <h1 className="text-3xl font-bold text-white">PromptPolish</h1>
           </div>
-          <p className="text-zinc-400">Transform rough ideas into professional, high-end prompts</p>
+          <p className="text-sm text-zinc-500">Refine your prompts instantly</p>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-2">
-          {/* Input Section */}
-          <Card className="bg-zinc-900 border-zinc-800 p-6">
-            <div className="space-y-4">
-              <div>
-                <h2 className="text-lg font-semibold text-white mb-3">Your Idea</h2>
-                <Textarea
-                  placeholder="Describe what you want to achieve... be as vague or specific as you like"
-                  value={input}
-                  onChange={(e) => setInput(e.target.value)}
-                  className="min-h-48 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500"
-                />
-              </div>
+        <div className="space-y-6">
+        {/* Input */}
+        <Card className="bg-zinc-900 border-zinc-800 p-6">
+          <Textarea
+            placeholder="Enter your prompt idea..."
+            value={input}
+            onChange={(e) => setInput(e.target.value)}
+            className="min-h-32 bg-zinc-800 border-zinc-700 text-white placeholder:text-zinc-500 mb-4"
+          />
 
-              {/* Model Selection */}
-              <div>
-                <h3 className="text-sm font-semibold text-white mb-2">AI Model</h3>
-                <select
-                  value={selectedModel}
-                  onChange={(e) => setSelectedModel(e.target.value)}
-                  className="w-full p-2 rounded-lg bg-zinc-800 border border-zinc-700 text-white text-sm"
-                >
-                  {MODELS.map((model) => (
-                    <option key={model.id} value={model.id}>
-                      {model.name} • {model.price} {model.rating}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              {/* Enhancement Mode Selection */}
-              <div>
-                <h3 className="text-sm font-semibold text-white mb-3">Enhancement Style</h3>
-                <div className="grid grid-cols-2 gap-2">
-                  {modes.map((m) => (
-                    <button
-                      key={m.value}
-                      onClick={() => setMode(m.value)}
-                      className={`p-2 rounded-lg text-sm transition-colors ${
-                        mode === m.value
-                          ? 'bg-blue-600 text-white'
-                          : 'bg-zinc-800 text-zinc-300 hover:bg-zinc-700'
-                      }`}
-                    >
-                      <div className="font-medium">{m.label}</div>
-                      <div className="text-xs opacity-75">{m.description}</div>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Error Display */}
-              {error && (
-                <div className="p-3 bg-red-500/10 border border-red-500/50 rounded-lg text-red-400 text-sm">
-                  {error}
-                </div>
-              )}
-
-              {/* Enhance Button */}
-              <Button
-                onClick={enhance}
-                disabled={loading || !input.trim()}
-                className="w-full bg-blue-600 hover:bg-blue-700 text-white"
+          {/* Controls */}
+          <div className="flex gap-4 items-end">
+            <div className="flex-1">
+              <label className="text-xs text-zinc-400 mb-1 block">Style</label>
+              <select
+                value={mode}
+                onChange={(e) => setMode(e.target.value as EnhancementMode)}
+                className="w-full p-2 rounded bg-zinc-800 border border-zinc-700 text-white text-sm"
               >
-                {loading ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Enhancing...
-                  </>
-                ) : (
-                  <>
-                    <Zap className="w-4 h-4 mr-2" />
-                    Enhance Prompt
-                  </>
-                )}
-              </Button>
+                {modes.map((m) => (
+                  <option key={m.value} value={m.value}>
+                    {m.label}
+                  </option>
+                ))}
+              </select>
             </div>
-          </Card>
 
-          {/* Output Section */}
+            <div className="flex-1">
+              <label className="text-xs text-zinc-400 mb-1 block">Model</label>
+              <select
+                value={selectedModel}
+                onChange={(e) => setSelectedModel(e.target.value)}
+                className="w-full p-2 rounded bg-zinc-800 border border-zinc-700 text-white text-sm"
+              >
+                {MODELS.map((m) => (
+                  <option key={m.id} value={m.id}>
+                    {m.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            <Button
+              onClick={enhance}
+              disabled={loading || !input.trim()}
+              className="bg-blue-600 hover:bg-blue-700 text-white"
+            >
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Sparkles className="w-4 h-4" />}
+            </Button>
+          </div>
+
+          {error && <div className="text-red-400 text-sm mt-3">{error}</div>}
+        </Card>
+
+        {/* Output */}
+        {result && (
           <Card className="bg-zinc-900 border-zinc-800 p-6">
-            {result ? (
-              <div className="space-y-4 h-full flex flex-col">
-                <div>
-                  <h2 className="text-lg font-semibold text-white mb-3">Enhanced Prompt</h2>
-                  <div className="p-3 bg-zinc-800 rounded-lg text-white text-sm leading-relaxed whitespace-pre-wrap overflow-y-auto max-h-48">
-                    {result.enhanced}
-                  </div>
-                </div>
-
-                {/* Copy Button */}
-                <Button
-                  onClick={copyToClipboard}
-                  className="w-full bg-green-600 hover:bg-green-700 text-white"
-                >
-                  {copied ? (
-                    <>✓ Copied!</>
-                  ) : (
-                    <>
-                      <Copy className="w-4 h-4 mr-2" />
-                      Copy to Clipboard
-                    </>
-                  )}
-                </Button>
-
-                {/* Comparison Toggle */}
-                <details className="text-sm">
-                  <summary className="cursor-pointer font-medium text-zinc-400 hover:text-zinc-300">
-                    View Original →
-                  </summary>
-                  <div className="mt-3 p-3 bg-zinc-800 rounded-lg text-zinc-300 leading-relaxed whitespace-pre-wrap max-h-32 overflow-y-auto">
-                    {result.original}
-                  </div>
-                </details>
-              </div>
-            ) : (
-              <div className="h-full flex items-center justify-center text-center">
-                <p className="text-zinc-500">
-                  {loading ? 'Enhancing your prompt...' : 'Enhanced prompt will appear here'}
-                </p>
-              </div>
-            )}
+            <div className="p-4 bg-zinc-800 rounded text-white text-sm leading-relaxed mb-4 whitespace-pre-wrap">
+              {result.enhanced}
+            </div>
+            <Button
+              onClick={copyToClipboard}
+              className="w-full bg-green-600 hover:bg-green-700 text-white"
+            >
+              {copied ? '✓ Copied!' : <><Copy className="w-4 h-4 mr-2" /> Copy</>}
+            </Button>
           </Card>
+        )}
         </div>
       </div>
     </div>
